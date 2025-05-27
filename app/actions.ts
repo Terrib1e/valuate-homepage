@@ -10,19 +10,33 @@ export async function submitContactForm(formData: FormData) {
   const company = formData.get("company") as string
   const message = formData.get("message") as string
 
+  console.log("Form submission received:", { name, email, company, message })
+
   // Validate required fields
   if (!name || !email) {
+    console.log("Validation failed: missing required fields")
     return {
       success: false,
       message: "Name and email are required fields.",
     }
   }
 
+  // Check if Resend API key is available
+  if (!process.env.RESEND_API_KEY) {
+    console.error("RESEND_API_KEY environment variable is not set")
+    return {
+      success: false,
+      message: "Email service is not configured. Please contact support.",
+    }
+  }
+
   try {
+    console.log("Attempting to send emails...")
+
     // Send email using Resend
-    await resend.emails.send({
-      from: "Valuate Contact Form <noreply@yourdomain.com>", // Replace with your verified domain
-      to: ["contact@valuate.ai"], // Replace with your actual email
+    const result = await resend.emails.send({
+      from: "Valuate Contact <onboarding@resend.dev>", // Using Resend's test domain
+      to: ["delivered@resend.dev"], // Using Resend's test email for now
       subject: `New Contact Form Submission from ${name}`,
       html: `
         <h2>New Contact Form Submission</h2>
@@ -36,22 +50,7 @@ export async function submitContactForm(formData: FormData) {
       `,
     })
 
-    // Send confirmation email to the user
-    await resend.emails.send({
-      from: "Valuate <noreply@yourdomain.com>", // Replace with your verified domain
-      to: [email],
-      subject: "Thank you for contacting Valuate",
-      html: `
-        <h2>Thank you for your interest in Valuate!</h2>
-        <p>Hi ${name},</p>
-        <p>We've received your message and will get back to you within 24 hours.</p>
-        <p>Our team is excited to help you revolutionize your hotel valuation process with AI.</p>
-        <br>
-        <p>Best regards,<br>The Valuate Team</p>
-        <hr>
-        <p><em>This is an automated confirmation email.</em></p>
-      `,
-    })
+    console.log("Email sent successfully:", result)
 
     return {
       success: true,
