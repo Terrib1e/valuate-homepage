@@ -1,10 +1,10 @@
 "use server"
 
-import { Resend } from "resend"
+import sgMail from "@sendgrid/mail"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!)
 
-export async function submitContactForm(formData: FormData) {
+export async function submitContactFormSendGrid(formData: FormData) {
   const name = formData.get("name") as string
   const email = formData.get("email") as string
   const company = formData.get("company") as string
@@ -19,10 +19,10 @@ export async function submitContactForm(formData: FormData) {
   }
 
   try {
-    // Send email using Resend
-    await resend.emails.send({
-      from: "Valuate Contact Form <noreply@yourdomain.com>", // Replace with your verified domain
-      to: ["contact@valuate.ai"], // Replace with your actual email
+    // Send notification email to your team
+    await sgMail.send({
+      to: "contact@valuate.ai", // Replace with your actual email
+      from: "noreply@yourdomain.com", // Replace with your verified sender email
       subject: `New Contact Form Submission from ${name}`,
       html: `
         <h2>New Contact Form Submission</h2>
@@ -37,9 +37,9 @@ export async function submitContactForm(formData: FormData) {
     })
 
     // Send confirmation email to the user
-    await resend.emails.send({
-      from: "Valuate <noreply@yourdomain.com>", // Replace with your verified domain
-      to: [email],
+    await sgMail.send({
+      to: email,
+      from: "noreply@yourdomain.com", // Replace with your verified sender email
       subject: "Thank you for contacting Valuate",
       html: `
         <h2>Thank you for your interest in Valuate!</h2>
