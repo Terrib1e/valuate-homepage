@@ -7,7 +7,7 @@ import { Building2, Brain, TrendingUp, Users, Mail, Phone, MapPin } from "lucide
 import { submitContactForm } from "./actions"
 
 export default function LandingPage() {
-  const [state, action, isPending] = useActionState(submitContactForm, null)
+  const [state, action, isPending] = useActionState(submitContactForm, undefined)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">

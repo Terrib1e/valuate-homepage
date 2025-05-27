@@ -4,7 +4,16 @@ import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-export async function submitContactForm(formData: FormData) {
+export async function submitContactForm(prevState: any, formData: FormData) {
+  // Handle the case where formData might be null
+  if (!formData) {
+    console.log("FormData is null")
+    return {
+      success: false,
+      message: "Form data is missing. Please try again.",
+    }
+  }
+
   const name = formData.get("name") as string
   const email = formData.get("email") as string
   const company = formData.get("company") as string
@@ -35,8 +44,8 @@ export async function submitContactForm(formData: FormData) {
 
     // Send email using Resend
     const result = await resend.emails.send({
-      from: "Valuate Contact <onboarding@resend.dev>", // Using Resend's test domain
-      to: ["delivered@resend.dev"], // Using Resend's test email for now
+      from: "Valuate Contact <onboarding@resend.dev>",
+      to: ["delivered@resend.dev"],
       subject: `New Contact Form Submission from ${name}`,
       html: `
         <h2>New Contact Form Submission</h2>
